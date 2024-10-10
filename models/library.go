@@ -16,7 +16,7 @@ func formatSongReleaseDate(song *entities.Song) error {
 	return nil
 }
 
-func GetLibrary(title, group, releaseDate, lyrics string, limit, offset int) ([]entities.Song, error) {
+func GetLibrary(title, group, releaseDate, lyrics, link string, limit, offset int) ([]entities.Song, error) {
 	query := `SELECT id, title, group_name, release_date, lyrics, link FROM songs WHERE 1=1`
 	args := []interface{}{} // переменная хранит параметры фильтрации и пагинации. Тип переменной []interface{}, так как аргументы имеют типы string и int
 
@@ -35,6 +35,10 @@ func GetLibrary(title, group, releaseDate, lyrics string, limit, offset int) ([]
 	if lyrics != "" {
 		query += " AND lyrics ILIKE $" + fmt.Sprint(len(args)+1)
 		args = append(args, "%"+lyrics+"%")
+	}
+	if link != "" {
+		query += " AND link ILIKE $" + fmt.Sprint(len(args)+1)
+		args = append(args, "%"+link+"%")
 	}
 
 	query += fmt.Sprintf(" ORDER BY id LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)

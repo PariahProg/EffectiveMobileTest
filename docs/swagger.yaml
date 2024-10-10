@@ -50,6 +50,10 @@ paths:
         in: query
         name: lyrics
         type: string
+      - description: Filter by link to clip
+        in: query
+        name: link
+        type: string
       - description: Page number
         in: query
         name: page

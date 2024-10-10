@@ -20,6 +20,7 @@ import (
 // @Param group query string false "Filter by group name"
 // @Param releaseDate query string false "Filter by release date (format DD.MM.YYYY)"
 // @Param lyrics query string false "Filter by lyrics"
+// @Param link query string false "Filter by link to clip"
 // @Param page query int true "Page number"
 // @Param songsPerPage query int true "Number of songs per page"
 // @Success 200 {array} entities.Song "Successfully fetched songs library"
@@ -32,6 +33,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 	group := r.URL.Query().Get("group")
 	releaseDateStr := r.URL.Query().Get("releaseDate")
 	lyrics := r.URL.Query().Get("lyrics")
+	link := r.URL.Query().Get("link")
 	pageStr := r.URL.Query().Get("page")
 	songsPerPageStr := r.URL.Query().Get("songsPerPage")
 
@@ -51,6 +53,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"group":           group,
 		"releaseDateStr":  releaseDateStr,
 		"lyrics":          lyrics,
+		"link":            link,
 		"pageStr":         pageStr,
 		"songsPerPageStr": songsPerPageStr,
 	}).Debug("Request to fetch songs library")
@@ -97,13 +100,14 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"offset": offset,
 	}).Debug("Calculated limit and offset")
 
-	library, err := models.GetLibrary(title, group, releaseDateFormatted, lyrics, limit, offset)
+	library, err := models.GetLibrary(title, group, releaseDateFormatted, lyrics, link, limit, offset)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"title":        title,
 			"group":        group,
 			"releaseDate":  releaseDate,
 			"lyrics":       lyrics,
+			"link":         link,
 			"page":         page,
 			"songsPerPage": songsPerPage,
 			"err":          err,
@@ -117,6 +121,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"group":        group,
 		"releaseDate":  releaseDate,
 		"lyrics":       lyrics,
+		"link":         link,
 		"page":         page,
 		"songsPerPage": songsPerPage,
 	}).Info("Successfully fetched library data")
@@ -132,6 +137,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"group":        group,
 		"releaseDate":  releaseDate,
 		"lyrics":       lyrics,
+		"link":         link,
 		"page":         page,
 		"songsPerPage": songsPerPage,
 	}).Info("Response successfully returned")
