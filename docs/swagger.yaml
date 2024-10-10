@@ -1,0 +1,268 @@
+definitions:
+  entities.Song:
+    properties:
+      group:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      lyrics:
+        type: string
+      releaseDate:
+        type: string
+      title:
+        type: string
+    type: object
+  entities.SongVerses:
+    properties:
+      page:
+        type: integer
+      verses:
+        items:
+          type: string
+        type: array
+      versesPerPage:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /library:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve songs from the library with optional filters and pagination
+      parameters:
+      - description: Filter by song title
+        in: query
+        name: title
+        type: string
+      - description: Filter by group name
+        in: query
+        name: group
+        type: string
+      - description: Filter by release date (format DD.MM.YYYY)
+        in: query
+        name: releaseDate
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Number of songs per page
+        in: query
+        name: songsPerPage
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched songs library
+          schema:
+            items:
+              $ref: '#/definitions/entities.Song'
+            type: array
+        "400":
+          description: One of query parameters is invalid
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get songs library
+      tags:
+      - library
+  /songs:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new song to the library. The request body must be in JSON
+        format and include the song's title and group
+      parameters:
+      - description: Song object containing title and group
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Song'
+      responses:
+        "201":
+          description: Song created successfully
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "415":
+          description: Unsupported Media Type
+          schema:
+            type: string
+        "422":
+          description: Incorrect song data provided or has invalid format
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add a new song
+  /songs/{id}:
+    delete:
+      description: Delete a song by id
+      parameters:
+      - description: Song id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Successfully deleted
+        "400":
+          description: Invalid song id
+          schema:
+            type: string
+        "404":
+          description: No song with such id
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete a song
+      tags:
+      - songs
+    patch:
+      consumes:
+      - application/json
+      description: Partially updates an existing song by its id. At least one field
+        (title, group, releaseDate, lyrics, or link) must be provided for update.
+      parameters:
+      - description: Song id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Fields to update in the song. At least one of: title, group,
+          releaseDate, lyrics, or link.'
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Song'
+      responses:
+        "204":
+          description: Successfully patched
+        "400":
+          description: Invalid request body or song id
+          schema:
+            type: string
+        "404":
+          description: No song with such id
+          schema:
+            type: string
+        "415":
+          description: Unsupported Content-Type
+          schema:
+            type: string
+        "422":
+          description: Incorrect body data provided or has invalid format
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Patch song
+      tags:
+      - songs
+    put:
+      consumes:
+      - application/json
+      description: 'Update the details of a song by its id. The request body must
+        be in JSON format and include all required fields: title, group, releaseDate,
+        lyrics and link.'
+      parameters:
+      - description: Song id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Song object that needs to be updated
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Song'
+      responses:
+        "204":
+          description: Successfully updated
+        "400":
+          description: Invalid request body or song id
+          schema:
+            type: string
+        "404":
+          description: No song found with the provided id
+          schema:
+            type: string
+        "415":
+          description: Unsupported Content-Type
+          schema:
+            type: string
+        "422":
+          description: Incorrect body data provided or has invalid format
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update an existing song
+      tags:
+      - songs
+  /songs/{id}/lyrics:
+    get:
+      description: Get lyrics of a song by id with pagination
+      parameters:
+      - description: Song id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Number of verses per page
+        in: query
+        name: versesPerPage
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched lyrics
+          schema:
+            $ref: '#/definitions/entities.SongVerses'
+        "400":
+          description: One of parameters is invalid or not provided
+          schema:
+            type: string
+        "404":
+          description: No song with such id
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get lyrics of a song
+      tags:
+      - songs
+swagger: "2.0"
