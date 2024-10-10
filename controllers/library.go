@@ -19,6 +19,7 @@ import (
 // @Param title query string false "Filter by song title"
 // @Param group query string false "Filter by group name"
 // @Param releaseDate query string false "Filter by release date (format DD.MM.YYYY)"
+// @Param lyrics query string false "Filter by lyrics"
 // @Param page query int true "Page number"
 // @Param songsPerPage query int true "Number of songs per page"
 // @Success 200 {array} entities.Song "Successfully fetched songs library"
@@ -30,6 +31,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Query().Get("title")
 	group := r.URL.Query().Get("group")
 	releaseDateStr := r.URL.Query().Get("releaseDate")
+	lyrics := r.URL.Query().Get("lyrics")
 	pageStr := r.URL.Query().Get("page")
 	songsPerPageStr := r.URL.Query().Get("songsPerPage")
 
@@ -48,6 +50,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"title":           title,
 		"group":           group,
 		"releaseDateStr":  releaseDateStr,
+		"lyrics":          lyrics,
 		"pageStr":         pageStr,
 		"songsPerPageStr": songsPerPageStr,
 	}).Debug("Request to fetch songs library")
@@ -55,14 +58,14 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page <= 0 {
 		logrus.WithField("pageStr", pageStr).Warn("Invalid page parameter provided")
-		http.Error(w, "Invalid pageStr provided!", http.StatusBadRequest)
+		http.Error(w, "Invalid page parameter provided!", http.StatusBadRequest)
 		return
 	}
 
 	songsPerPage, err := strconv.Atoi(songsPerPageStr)
 	if err != nil || songsPerPage < 1 {
 		logrus.WithField("songsPerPageStr", songsPerPageStr).Warn("Invalid songsPerPage parameter provided")
-		http.Error(w, "Invalid songsPerPageStr provided!", http.StatusBadRequest)
+		http.Error(w, "Invalid songsPerPage parameter provided!", http.StatusBadRequest)
 		return
 	}
 
@@ -94,12 +97,13 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"offset": offset,
 	}).Debug("Calculated limit and offset")
 
-	library, err := models.GetLibrary(title, group, releaseDateFormatted, limit, offset)
+	library, err := models.GetLibrary(title, group, releaseDateFormatted, lyrics, limit, offset)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"title":        title,
 			"group":        group,
 			"releaseDate":  releaseDate,
+			"lyrics":       lyrics,
 			"page":         page,
 			"songsPerPage": songsPerPage,
 			"err":          err,
@@ -112,6 +116,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"title":        title,
 		"group":        group,
 		"releaseDate":  releaseDate,
+		"lyrics":       lyrics,
 		"page":         page,
 		"songsPerPage": songsPerPage,
 	}).Info("Successfully fetched library data")
@@ -126,6 +131,7 @@ func GetLibrary(w http.ResponseWriter, r *http.Request) {
 		"title":        title,
 		"group":        group,
 		"releaseDate":  releaseDate,
+		"lyrics":       lyrics,
 		"page":         page,
 		"songsPerPage": songsPerPage,
 	}).Info("Response successfully returned")

@@ -46,6 +46,10 @@ paths:
         in: query
         name: releaseDate
         type: string
+      - description: Filter by lyrics
+        in: query
+        name: lyrics
+        type: string
       - description: Page number
         in: query
         name: page
